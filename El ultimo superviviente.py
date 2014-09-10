@@ -43,37 +43,28 @@ class Soldado (pilasengine.actores.Actor):
         self.imagen="corredor.png"
     def saltar(self):
         self.imagen="salto.png"
-
+        self.hacer(Saltar)
 class Saltar(pilasengine.comportamientos.Comportamiento):
     """Realiza un salto, cambiando los atributos 'y'."""
 
-    def iniciar(self, receptor, velocidad_inicial=10, cuando_termina=None):
+    def iniciar(self, receptor, velocidad_inicial=13, cuando_termina=None):
         """Se invoca cuando se anexa el comportamiento a un actor.
 
         :param receptor: El actor que comenzará a ejecutar este comportamiento.
         """
         super(Saltar, self).iniciar(receptor)
         self.velocidad_inicial = velocidad_inicial
-        self.cuando_termina = cuando_termina
-        self.sonido_saltar = self.pilas.sonidos.cargar("audio/saltar.wav")
         self.suelo = int(self.receptor.y)
         self.velocidad = self.velocidad_inicial
-        self.sonido_saltar.reproducir()
-        self.velocidad_aux = self.velocidad_inicial
 
     def actualizar(self):
         self.receptor.y += self.velocidad
-        self.velocidad -= 0.3
+        self.velocidad -= 1
 
         if self.receptor.y <= self.suelo:
-            self.velocidad_aux /= 2.0
-            self.velocidad = self.velocidad_aux
+            self.velocidad=0
+            self.receptor.y =-150
 
-            if self.velocidad_aux <= 1:
-                # Si toca el suelo
-                self.receptor.y = self.suelo
-                if self.cuando_termina:
-                    self.cuando_termina()
 
 
 class Fondo (pilasengine.actores.Actor):
@@ -109,7 +100,8 @@ class Bloque (pilasengine.actores.Actor):
         self.imagen="bloque_naranja.png"
     def deshacer(self):
         self.imagen="bloque.png"
-
+        
+   
 
 fondo=Fondo(pilas)
 pasto=Pasto(pilas)
@@ -139,7 +131,11 @@ bloque2.escala=0.7
 bloque1.x=dist*-3
 bloque1.escala=0.5
 bloque_seleccionado=3
-
+actor=pilas.actores.Actor()
+actor.imagen="escopeta.png"
+actor.escala=2
+actor.x=89
+actor.y=143
 lista=[]
 lista.append(bloque1)
 lista.append(bloque2)
@@ -190,6 +186,6 @@ pilas.escena.pulsa_tecla.conectar(cuando_pulsa_tecla)
 #3 metralleta
 #4 sniper
 #5 escopeta
-#6 bazuca
+#6 minigun
 #7 granada
 pilas.ejecutar()

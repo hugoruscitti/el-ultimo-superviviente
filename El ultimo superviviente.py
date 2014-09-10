@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 import pilasengine
 pilas=pilasengine.iniciar()
 
@@ -8,21 +9,21 @@ class Pasto (pilasengine.actores.Actor):
         self.y=-200
         self.x=-0
         self.imagen.repetir_horizontal= True
-        
-        
+
+
     def actualizar(self):
         self.x -=+0
         if self.x < -960:
-            self.x= -0        
+            self.x= -0
     def mover(self):
         self.x -=+7
         if self.x < -960:
-            self.x= -0  
+            self.x= -0
     def mover_i(self):
         self.x -=-7
         if self.x > 960:
-            self.x= -0  
-            
+            self.x= -0
+
 class Soldado (pilasengine.actores.Actor):
     def iniciar(self):
         self.imagen="corredor.png"
@@ -42,12 +43,13 @@ class Soldado (pilasengine.actores.Actor):
         self.imagen="corredor.png"
     def saltar(self):
         self.imagen="salto.png"
-class Saltar(comportamientos.Comportamiento):
+
+class Saltar(pilasengine.comportamientos.Comportamiento):
     """Realiza un salto, cambiando los atributos 'y'."""
- 
+
     def iniciar(self, receptor, velocidad_inicial=10, cuando_termina=None):
         """Se invoca cuando se anexa el comportamiento a un actor.
- 
+
         :param receptor: El actor que comenzará a ejecutar este comportamiento.
         """
         super(Saltar, self).iniciar(receptor)
@@ -58,22 +60,22 @@ class Saltar(comportamientos.Comportamiento):
         self.velocidad = self.velocidad_inicial
         self.sonido_saltar.reproducir()
         self.velocidad_aux = self.velocidad_inicial
- 
+
     def actualizar(self):
         self.receptor.y += self.velocidad
         self.velocidad -= 0.3
- 
+
         if self.receptor.y <= self.suelo:
             self.velocidad_aux /= 2.0
             self.velocidad = self.velocidad_aux
- 
+
             if self.velocidad_aux <= 1:
                 # Si toca el suelo
                 self.receptor.y = self.suelo
                 if self.cuando_termina:
                     self.cuando_termina()
 
-        
+
 class Fondo (pilasengine.actores.Actor):
     def iniciar(self):
         self.imagen="fondo.png"
@@ -81,8 +83,8 @@ class Fondo (pilasengine.actores.Actor):
         self.x=0
         self.escala=1.75
         self.imagen.repetir_horizontal= True
-        
-        
+
+
     def actualizar(self):
         self.x -=+0
         if self.x < -1400:
@@ -90,7 +92,7 @@ class Fondo (pilasengine.actores.Actor):
     def mover(self):
         self.x -=+2.50
         if self.x < -1400:
-            self.x= -0 
+            self.x= -0
     def mover_i(self):
         self.x -=-2.50
         if self.x > 1400:
@@ -99,7 +101,7 @@ class Bloque (pilasengine.actores.Actor):
     def iniciar(self):
         self.imagen="bloque.png"
         self.y=150
-        self.x=-50 
+        self.x=-50
         self.sonido=pilas.sonidos.cargar("pop.wav")
 
     def seleccionar(self):
@@ -107,9 +109,9 @@ class Bloque (pilasengine.actores.Actor):
         self.imagen="bloque_naranja.png"
     def deshacer(self):
         self.imagen="bloque.png"
-        
 
-fondo=Fondo(pilas)        
+
+fondo=Fondo(pilas)
 pasto=Pasto(pilas)
 bloque1=Bloque(pilas)
 bloque2=Bloque(pilas)
@@ -149,7 +151,7 @@ lista.append(bloque7)
 def cuando_suelta_tecla(e):
     if e.codigo=="s":
         soldado.parar()
-        
+
 def cuando_pulsa_tecla(e):
     global bloque_seleccionado
     global lista
@@ -164,16 +166,16 @@ def cuando_pulsa_tecla(e):
     if e.codigo=="q":
         bloque_seleccionado-=1
         if bloque_seleccionado<0:
-            bloque_seleccionado=0         
+            bloque_seleccionado=0
 
         for x in lista:
             x.deshacer()
         lista[bloque_seleccionado].seleccionar()
     if e.codigo=="w":
         soldado.saltar()
-    if e.codigo=="s":  
-        soldado.agachar() 
-        return         
+    if e.codigo=="s":
+        soldado.agachar()
+        return
     if e.codigo=="d":
         soldado.mover_fondo()
         soldado.espejado=False

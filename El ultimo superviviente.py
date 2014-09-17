@@ -29,6 +29,7 @@ class Soldado (pilasengine.actores.Actor):
         self.imagen="corredor.png"
         self.y=-150
         self.x=-150
+        self.saltando=False
     def actualizar(self):
         self.x -=+0
     def mover_fondo(self):
@@ -42,8 +43,9 @@ class Soldado (pilasengine.actores.Actor):
     def parar(self):
         self.imagen="corredor.png"
     def saltar(self):
-        self.imagen="salto.png"
-        self.hacer(Saltar)
+        if not self.saltando:
+            self.imagen="salto.png"
+            self.hacer(Saltar)
 class Saltar(pilasengine.comportamientos.Comportamiento):
     """Realiza un salto, cambiando los atributos 'y'."""
 
@@ -56,16 +58,23 @@ class Saltar(pilasengine.comportamientos.Comportamiento):
         self.velocidad_inicial = velocidad_inicial
         self.suelo = int(self.receptor.y)
         self.velocidad = self.velocidad_inicial
-
+        receptor.saltando=True
     def actualizar(self):
         self.receptor.y += self.velocidad
         self.velocidad -= 1
+        
 
         if self.receptor.y <= self.suelo:
             self.velocidad=0
             self.receptor.y =-150
+            self.receptor.saltando=False
+            self.receptor.parar()
 
 
+class Zombie(pilasengine.actores.Actor):
+    def iniciar(self):
+        self.imagen="zombiecamina.png"
+        
 
 class Fondo (pilasengine.actores.Actor):
     def iniciar(self):
@@ -105,6 +114,8 @@ class Bloque (pilasengine.actores.Actor):
 
 fondo=Fondo(pilas)
 pasto=Pasto(pilas)
+
+
 bloque1=Bloque(pilas)
 bloque2=Bloque(pilas)
 bloque3=Bloque(pilas)
@@ -112,9 +123,18 @@ bloque4=Bloque(pilas)
 bloque5=Bloque(pilas)
 bloque6=Bloque(pilas)
 bloque7=Bloque(pilas)
+
+
 soldado=Soldado(pilas)
 soldado.pasto=pasto
 soldado.fondo=fondo
+
+
+zombie=Zombie(pilas)
+zombie.escala=4
+zombie.x=100
+zombie.y=-150
+
 dist=90
 bloque7.x=dist*3
 bloque7.escala=0.5
@@ -131,11 +151,65 @@ bloque2.escala=0.7
 bloque1.x=dist*-3
 bloque1.escala=0.5
 bloque_seleccionado=3
+
+
 actor=pilas.actores.Actor()
 actor.imagen="escopeta.png"
 actor.escala=2
 actor.x=89
 actor.y=143
+
+
+actor2=pilas.actores.Actor()
+actor2.imagen="minigun.png"
+actor2.escala=1.6
+actor2.x=184
+actor2.y=145
+
+
+
+actor3=pilas.actores.Actor()
+actor3.imagen="granato.png"
+actor3.escala=1.5
+actor3.x=267
+actor3.y=145
+
+
+
+actor4=pilas.actores.Actor()
+actor4.imagen="metra.png"
+actor4.escala=1.5
+actor4.x=-90
+actor4.y=145
+
+
+actor5=pilas.actores.Actor()
+actor5.imagen="cuchillito.png"
+actor5.escala=1.8
+actor5.x=-270
+actor5.y=145
+
+
+
+actor6=pilas.actores.Actor()
+actor6.imagen="pistol.png"
+actor6.escala=1.3
+actor6.x=-180
+actor6.y=145
+
+
+
+actor6=pilas.actores.Actor()
+actor6.imagen="sniper.png"
+actor6.escala=1.5
+actor6.x=1
+actor6.y=150
+
+
+
+
+
+
 lista=[]
 lista.append(bloque1)
 lista.append(bloque2)

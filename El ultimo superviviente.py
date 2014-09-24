@@ -26,12 +26,21 @@ class Pasto (pilasengine.actores.Actor):
 
 class Soldado (pilasengine.actores.Actor):
     def iniciar(self):
-        self.imagen="corredor.png"
+        self.imagen=pilas.imagenes.cargar_grilla("correr.png",6)
+        
         self.y=-150
         self.x=-150
+        self.ir_izquierda=False
+        self.ir_derecha=False
         self.saltando=False
+        self.agachado=False
     def actualizar(self):
+        self.imagen.avanzar(5)
         self.x -=+0
+        if self.ir_izquierda:
+            self.mover_fondo_i()
+        if self.ir_derecha:
+            self.mover_fondo()
     def mover_fondo(self):
         self.pasto.mover()
         self.fondo.mover()
@@ -73,9 +82,11 @@ class Saltar(pilasengine.comportamientos.Comportamiento):
 
 class Zombie(pilasengine.actores.Actor):
     def iniciar(self):
-        self.imagen="zombiecamina.png"
-        
-
+        self.imagen="zombies2.png"
+        self.escala=0.7
+        self.imagen=pilas.imagenes.cargar_grilla("zombies2.png",6)
+    def actualizar(self):
+        self.imagen.avanzar(5)
 class Fondo (pilasengine.actores.Actor):
     def iniciar(self):
         self.imagen="fondo.png"
@@ -131,9 +142,9 @@ soldado.fondo=fondo
 
 
 zombie=Zombie(pilas)
-zombie.escala=4
+
 zombie.x=100
-zombie.y=-150
+zombie.y=-130
 
 dist=90
 bloque7.x=dist*3
@@ -218,10 +229,14 @@ lista.append(bloque4)
 lista.append(bloque5)
 lista.append(bloque6)
 lista.append(bloque7)
+
 def cuando_suelta_tecla(e):
     if e.codigo=="s":
         soldado.parar()
-
+    if e.codigo=="a":
+        soldado.ir_izquierda=False
+    if e.codigo=="d":
+        soldado.ir_derecha=False
 def cuando_pulsa_tecla(e):
     global bloque_seleccionado
     global lista
@@ -247,10 +262,12 @@ def cuando_pulsa_tecla(e):
         soldado.agachar()
         return
     if e.codigo=="d":
-        soldado.mover_fondo()
+        soldado.ir_derecha=True
+        soldado.ir_izquierda=False
         soldado.espejado=False
     if e.codigo=="a":
-        soldado.mover_fondo_i()
+        soldado.ir_derecha=False
+        soldado.ir_izquierda=True
         soldado.espejado=True
 
 pilas.escena.suelta_tecla.conectar(cuando_suelta_tecla)

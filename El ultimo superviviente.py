@@ -1,4 +1,10 @@
 # -*- encoding: utf-8 -*-
+#
+# Imagenes utilizadas desde el link:
+#
+#             http://mechanox.deviantart.com/gallery/?catpath=%2Fdigitalart&offset=0
+#
+
 import pilasengine
 pilas=pilasengine.iniciar(capturar_errores=False)
 
@@ -36,18 +42,17 @@ class Soldado (pilasengine.actores.Actor):
 
         self.imagen.definir_animacion('corre', [3, 4], 10)
         self.imagen.definir_animacion('parado', [6], 10)
-        self.imagen.cargar_animacion('inicial')
-        self.hacer(Parado)
+        self.imagen.definir_animacion('saltando', [3], 10)
+        self.imagen.definir_animacion('agachado', [0], 10)
+        self.realizar(Parado)
+
+    def realizar(self, estado):
+        #print "Pasando al estado:", estado
+        self.estado_actual = estado(self)
+        self.estado_actual.iniciar()
 
     def actualizar(self):
-        self.imagen.cargar_animacion('parado')
-        self.imagen.avanzar()
-        self.x -=+0
-
-        if self.ir_izquierda:
-            self.mover_fondo_i()
-        if self.ir_derecha:
-            self.mover_fondo()
+        self.estado_actual.actualizar()
 
     def mover_fondo(self):
         self.pasto.mover()
@@ -66,12 +71,18 @@ class Soldado (pilasengine.actores.Actor):
     def saltar(self):
         if not self.saltando:
             self.imagen = pilas.imagenes.cargar_grilla("data/soldado/salto.png", 1)
-            self.hacer(Saltar)
+            self.realizar(Saltar)
 
     def pulsa_tecla(self, tecla):
         self.comportamiento_actual.pulsa_tecla(tecla)
 
-class Comportamiento(pilasengine.comportamientos.Comportamiento):
+class Estado(object):
+
+    def __init__(self, receptor):
+        self.receptor = receptor
+
+    def actualizar(self):
+        pass
 
     def saltar(self):
         pass
@@ -79,11 +90,21 @@ class Comportamiento(pilasengine.comportamientos.Comportamiento):
     def agachar(self):
         pass
 
-class Parado(Comportamiento):
+    def pulsa_tecla(self, tecla):
+        pass
+        #print "pulsa_tecla", tecla
 
-    def iniciar(self, receptor):
-        super(Parado, self).iniciar(receptor)
-        receptor.imagen.cargar_animacion('parado')
+    def suelta_tecla(self, tecla):
+        pass
+        #print "suelta tecla", tecla
+
+class Parado(Estado):
+
+    def iniciar(self):
+        self.receptor.imagen.cargar_animacion('parado')
+
+    def actualizar(self):
+        self.receptor.imagen.avanzar()
 
     def saltar(self):
         pass
@@ -91,22 +112,76 @@ class Parado(Comportamiento):
     def agachar(self):
         pass
 
+    def pulsa_tecla(self, tecla):
+        if tecla == 'w':
+            self.receptor.realizar(Saltar)
 
-class Saltar(Comportamiento):
+        if tecla == 's':
+            self.receptor.realizar(Agachado)
+
+        if tecla == 'd':
+            self.receptor.realizar(CorreDerecha)
+
+        if tecla == 'a':
+            self.receptor.realizar(CorreIzquierda)
+
+class Agachado(Estado):
+
+    def iniciar(self):
+        self.receptor.imagen.cargar_animacion('agachado')
+
+    def suelta_tecla(self, tecla):
+        if tecla == 's':
+            self.receptor.realizar(Parado)
+
+
+class CorreDerecha(Estado):
+
+    def iniciar(self):
+        self.receptor.imagen.cargar_animacion('corre')
+        self.receptor.espejado = False
+
+    def suelta_tecla(self, tecla):
+        if tecla == 'd':
+            self.receptor.realizar(Parado)
+
+    def actualizar(self):
+        self.receptor.imagen.avanzar()
+        self.receptor.mover_fondo()
+
+
+class CorreIzquierda(Estado):
+
+    def iniciar(self):
+        self.receptor.imagen.cargar_animacion('corre')
+        self.receptor.espejado = True
+
+    def suelta_tecla(self, tecla):
+        if tecla == 'a':
+            self.receptor.realizar(Parado)
+
+    def actualizar(self):
+        self.receptor.imagen.avanzar()
+        self.receptor.mover_fondo_i()
+
+
+
+class Saltar(Estado):
     """Realiza un salto, cambiando los atributos 'y'."""
 
-    def iniciar(self, receptor, velocidad_inicial=13, cuando_termina=None):
+    def iniciar(self, velocidad_inicial=13, cuando_termina=None):
         """Se invoca cuando se anexa el comportamiento a un actor.
 
         :param receptor: El actor que comenzará a ejecutar este comportamiento.
         """
-        super(Saltar, self).iniciar(receptor)
         self.velocidad_inicial = velocidad_inicial
         self.suelo = int(self.receptor.y)
         self.velocidad = self.velocidad_inicial
-        receptor.saltando=True
+        self.receptor.saltando = True
+        self.receptor.imagen.cargar_animacion('saltando')
 
     def actualizar(self):
+        self.receptor.imagen.avanzar()
         self.receptor.y += self.velocidad
         self.velocidad -= 1
 
@@ -114,7 +189,7 @@ class Saltar(Comportamiento):
             self.velocidad=0
             self.receptor.y =-150
             self.receptor.saltando=False
-            self.receptor.parar()
+            self.receptor.realizar(Parado)
 
 
 class Zombie(pilasengine.actores.Actor):
@@ -268,14 +343,6 @@ lista.append(bloque5)
 lista.append(bloque6)
 lista.append(bloque7)
 
-def cuando_suelta_tecla(e):
-    if e.codigo=="s":
-        soldado.parar()
-    if e.codigo=="a":
-        soldado.ir_izquierda=False
-    if e.codigo=="d":
-        soldado.ir_derecha=False
-
 def cuando_pulsa_tecla(e):
     global bloque_seleccionado
     global lista
@@ -296,20 +363,11 @@ def cuando_pulsa_tecla(e):
         for x in lista:
             x.deshacer()
         lista[bloque_seleccionado].seleccionar()
-    if e.codigo=="w":
-        print soldado.comportamiento_actual
-        soldado.comportamiento_actual.saltar()
-    if e.codigo=="s":
-        soldado.comportamiento_actual.agachar()
-        return
-    if e.codigo=="d":
-        soldado.ir_derecha=True
-        soldado.ir_izquierda=False
-        soldado.espejado=False
-    if e.codigo=="a":
-        soldado.ir_derecha=False
-        soldado.ir_izquierda=True
-        soldado.espejado=True
+
+    soldado.estado_actual.pulsa_tecla(e.codigo)
+
+def cuando_suelta_tecla(e):
+    soldado.estado_actual.suelta_tecla(e.codigo)
 
 pilas.escena.suelta_tecla.conectar(cuando_suelta_tecla)
 pilas.escena.pulsa_tecla.conectar(cuando_pulsa_tecla)

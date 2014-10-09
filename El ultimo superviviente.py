@@ -1,11 +1,11 @@
 # -*- encoding: utf-8 -*-
 import pilasengine
-pilas=pilasengine.iniciar()
+pilas=pilasengine.iniciar(capturar_errores=False)
 
 
 class Pasto (pilasengine.actores.Actor):
     def iniciar(self):
-        self.imagen="Floor.png"
+        self.imagen="data/fondo/Floor.png"
         self.y=-200
         self.x=-0
         self.imagen.repetir_horizontal= True
@@ -26,35 +26,43 @@ class Pasto (pilasengine.actores.Actor):
 
 class Soldado (pilasengine.actores.Actor):
     def iniciar(self):
-        self.imagen=pilas.imagenes.cargar_grilla("correr.png",6)
-        
+        self.imagen=pilas.imagenes.cargar_grilla("data/soldado/correr.png",6)
         self.y=-150
         self.x=-150
         self.ir_izquierda=False
         self.ir_derecha=False
         self.saltando=False
         self.agachado=False
+
     def actualizar(self):
         self.imagen.avanzar(5)
         self.x -=+0
+
         if self.ir_izquierda:
             self.mover_fondo_i()
         if self.ir_derecha:
             self.mover_fondo()
+
     def mover_fondo(self):
         self.pasto.mover()
         self.fondo.mover()
+
     def mover_fondo_i(self):
         self.pasto.mover_i()
         self.fondo.mover_i()
+
     def agachar(self):
-        self.imagen="agachado.png"
+        self.imagen = pilas.imagenes.cargar_grilla("data/soldado/agachado.png", 1)
+
     def parar(self):
-        self.imagen="corredor.png"
+        self.imagen = pilas.imagenes.cargar_grilla("data/soldado/corredor.png", 1)
+
     def saltar(self):
         if not self.saltando:
-            self.imagen="salto.png"
+            self.imagen = pilas.imagenes.cargar_grilla("data/soldado/salto.png", 1)
             self.hacer(Saltar)
+
+
 class Saltar(pilasengine.comportamientos.Comportamiento):
     """Realiza un salto, cambiando los atributos 'y'."""
 
@@ -71,7 +79,7 @@ class Saltar(pilasengine.comportamientos.Comportamiento):
     def actualizar(self):
         self.receptor.y += self.velocidad
         self.velocidad -= 1
-        
+
 
         if self.receptor.y <= self.suelo:
             self.velocidad=0
@@ -82,14 +90,14 @@ class Saltar(pilasengine.comportamientos.Comportamiento):
 
 class Zombie(pilasengine.actores.Actor):
     def iniciar(self):
-        self.imagen="zombies2.png"
+        #self.imagen="zombies2.png"
         self.escala=0.7
-        self.imagen=pilas.imagenes.cargar_grilla("zombies2.png",6)
+        self.imagen=pilas.imagenes.cargar_grilla("data/zombie/caminando.png",6)
     def actualizar(self):
         self.imagen.avanzar(5)
 class Fondo (pilasengine.actores.Actor):
     def iniciar(self):
-        self.imagen="fondo.png"
+        self.imagen="data/fondo/fondo.png"
         self.y=-20
         self.x=0
         self.escala=1.75
@@ -110,18 +118,18 @@ class Fondo (pilasengine.actores.Actor):
             self.x= -0
 class Bloque (pilasengine.actores.Actor):
     def iniciar(self):
-        self.imagen="bloque.png"
+        self.imagen="data/barra/bloque.png"
         self.y=150
         self.x=-50
-        self.sonido=pilas.sonidos.cargar("pop.wav")
+        self.sonido=pilas.sonidos.cargar("data/sonidos/pop.wav")
 
     def seleccionar(self):
         self.sonido.reproducir()
-        self.imagen="bloque_naranja.png"
+        self.imagen="data/barra/bloque_naranja.png"
     def deshacer(self):
-        self.imagen="bloque.png"
-        
-   
+        self.imagen="data/barra/bloque.png"
+
+
 
 fondo=Fondo(pilas)
 pasto=Pasto(pilas)
@@ -165,14 +173,14 @@ bloque_seleccionado=3
 
 
 actor=pilas.actores.Actor()
-actor.imagen="escopeta.png"
+actor.imagen="data/barra/escopeta.png"
 actor.escala=2
 actor.x=89
 actor.y=143
 
 
 actor2=pilas.actores.Actor()
-actor2.imagen="minigun.png"
+actor2.imagen="data/barra/minigun.png"
 actor2.escala=1.6
 actor2.x=184
 actor2.y=145
@@ -180,7 +188,7 @@ actor2.y=145
 
 
 actor3=pilas.actores.Actor()
-actor3.imagen="granato.png"
+actor3.imagen="data/barra/granato.png"
 actor3.escala=1.5
 actor3.x=267
 actor3.y=145
@@ -188,14 +196,14 @@ actor3.y=145
 
 
 actor4=pilas.actores.Actor()
-actor4.imagen="metra.png"
+actor4.imagen="data/barra/metra.png"
 actor4.escala=1.5
 actor4.x=-90
 actor4.y=145
 
 
 actor5=pilas.actores.Actor()
-actor5.imagen="cuchillito.png"
+actor5.imagen="data/barra/cuchillito.png"
 actor5.escala=1.8
 actor5.x=-270
 actor5.y=145
@@ -203,7 +211,7 @@ actor5.y=145
 
 
 actor6=pilas.actores.Actor()
-actor6.imagen="pistol.png"
+actor6.imagen="data/barra/pistol.png"
 actor6.escala=1.3
 actor6.x=-180
 actor6.y=145
@@ -211,7 +219,7 @@ actor6.y=145
 
 
 actor6=pilas.actores.Actor()
-actor6.imagen="sniper.png"
+actor6.imagen="data/barra/sniper.png"
 actor6.escala=1.5
 actor6.x=1
 actor6.y=150

@@ -10,7 +10,6 @@ class Pasto (pilasengine.actores.Actor):
         self.x=-0
         self.imagen.repetir_horizontal= True
 
-
     def actualizar(self):
         self.x -=+0
         if self.x < -960:
@@ -25,17 +24,24 @@ class Pasto (pilasengine.actores.Actor):
             self.x= -0
 
 class Soldado (pilasengine.actores.Actor):
+
     def iniciar(self):
-        self.imagen=pilas.imagenes.cargar_grilla("data/soldado/correr.png",6)
-        self.y=-150
-        self.x=-150
-        self.ir_izquierda=False
-        self.ir_derecha=False
-        self.saltando=False
-        self.agachado=False
+        self.imagen = pilas.imagenes.cargar_animacion("data/soldado/animacion.png", 8)
+        self.y = -150
+        self.x = -150
+        self.ir_izquierda = False
+        self.ir_derecha = False
+        self.saltando = False
+        self.agachado = False
+
+        self.imagen.definir_animacion('corre', [3, 4], 10)
+        self.imagen.definir_animacion('parado', [6], 10)
+        self.imagen.cargar_animacion('inicial')
+        self.hacer(Parado)
 
     def actualizar(self):
-        self.imagen.avanzar(5)
+        self.imagen.cargar_animacion('parado')
+        self.imagen.avanzar()
         self.x -=+0
 
         if self.ir_izquierda:
@@ -62,8 +68,31 @@ class Soldado (pilasengine.actores.Actor):
             self.imagen = pilas.imagenes.cargar_grilla("data/soldado/salto.png", 1)
             self.hacer(Saltar)
 
+    def pulsa_tecla(self, tecla):
+        self.comportamiento_actual.pulsa_tecla(tecla)
 
-class Saltar(pilasengine.comportamientos.Comportamiento):
+class Comportamiento(pilasengine.comportamientos.Comportamiento):
+
+    def saltar(self):
+        pass
+
+    def agachar(self):
+        pass
+
+class Parado(Comportamiento):
+
+    def iniciar(self, receptor):
+        super(Parado, self).iniciar(receptor)
+        receptor.imagen.cargar_animacion('parado')
+
+    def saltar(self):
+        pass
+
+    def agachar(self):
+        pass
+
+
+class Saltar(Comportamiento):
     """Realiza un salto, cambiando los atributos 'y'."""
 
     def iniciar(self, receptor, velocidad_inicial=13, cuando_termina=None):
@@ -76,10 +105,10 @@ class Saltar(pilasengine.comportamientos.Comportamiento):
         self.suelo = int(self.receptor.y)
         self.velocidad = self.velocidad_inicial
         receptor.saltando=True
+
     def actualizar(self):
         self.receptor.y += self.velocidad
         self.velocidad -= 1
-
 
         if self.receptor.y <= self.suelo:
             self.velocidad=0
@@ -95,6 +124,7 @@ class Zombie(pilasengine.actores.Actor):
         self.imagen=pilas.imagenes.cargar_grilla("data/zombie/caminando.png",6)
     def actualizar(self):
         self.imagen.avanzar(5)
+
 class Fondo (pilasengine.actores.Actor):
     def iniciar(self):
         self.imagen="data/fondo/fondo.png"
@@ -245,9 +275,11 @@ def cuando_suelta_tecla(e):
         soldado.ir_izquierda=False
     if e.codigo=="d":
         soldado.ir_derecha=False
+
 def cuando_pulsa_tecla(e):
     global bloque_seleccionado
     global lista
+
     if e.codigo=="e":
         bloque_seleccionado+=1
         if bloque_seleccionado>6:
@@ -265,9 +297,10 @@ def cuando_pulsa_tecla(e):
             x.deshacer()
         lista[bloque_seleccionado].seleccionar()
     if e.codigo=="w":
-        soldado.saltar()
+        print soldado.comportamiento_actual
+        soldado.comportamiento_actual.saltar()
     if e.codigo=="s":
-        soldado.agachar()
+        soldado.comportamiento_actual.agachar()
         return
     if e.codigo=="d":
         soldado.ir_derecha=True

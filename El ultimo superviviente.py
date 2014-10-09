@@ -33,7 +33,7 @@ class Soldado (pilasengine.actores.Actor):
 
     def iniciar(self):
         self.imagen = pilas.imagenes.cargar_animacion("data/soldado/animacion.png", 8)
-        self.y = -150
+        self.y = -145
         self.x = -150
         self.ir_izquierda = False
         self.ir_derecha = False
@@ -199,7 +199,7 @@ class Zombie(pilasengine.actores.Actor):
         self.imagen=pilas.imagenes.cargar_grilla("data/zombie/caminando.png",6)
     def actualizar(self):
         self.imagen.avanzar(5)
-
+        self.x -=+1
 class Fondo (pilasengine.actores.Actor):
     def iniciar(self):
         self.imagen="data/fondo/fondo.png"
@@ -255,26 +255,73 @@ soldado.fondo=fondo
 
 
 zombie=Zombie(pilas)
-
-zombie.x=100
+zombie.x=400
 zombie.y=-130
+fondo.zombie=zombie
 
 dist=90
 bloque7.x=dist*3
 bloque7.escala=0.5
+balas_7=pilas.actores.Texto()
+balas_7.texto="0"
+balas_7.escala=0.4
+balas_7.x=305
+balas_7.y=135
+
 bloque6.x=dist*2
 bloque6.escala=0.7
+balas_6=pilas.actores.Texto()
+balas_6.texto="0"
+balas_6.escala=0.6
+balas_6.x=230
+balas_6.y=130
+
+
+
 bloque5.x=dist*1
 bloque5.escala=0.84
+balas_5=pilas.actores.Texto()
+balas_5.texto="0"
+balas_5.escala=0.7
+balas_5.x=150
+balas_5.y=125
+
+
 bloque4.x=dist*0
 bloque4.seleccionar()
+balas_4=pilas.actores.Texto()
+balas_4.texto="0"
+balas_4.escala=0.9
+balas_4.x=70
+balas_4.y=123
+
+
 bloque3.x=dist*-1
 bloque3.escala=0.84
+balas_3=pilas.actores.Texto()
+balas_3.texto="0"
+balas_3.escala=0.7
+balas_3.x=-30
+balas_3.y=125
+
+
 bloque2.x=dist*-2
 bloque2.escala=0.7
+bloque6.x=dist*2
+bloque6.escala=0.7
+balas_6=pilas.actores.Texto()
+balas_6.texto="0"
+balas_6.escala=0.6
+balas_6.x=-130
+balas_6.y=130
+
+
 bloque1.x=dist*-3
 bloque1.escala=0.5
 bloque_seleccionado=3
+
+
+
 
 
 actor=pilas.actores.Actor()
@@ -334,6 +381,9 @@ actor6.y=150
 
 
 
+
+
+
 lista=[]
 lista.append(bloque1)
 lista.append(bloque2)
@@ -378,4 +428,5 @@ pilas.escena.pulsa_tecla.conectar(cuando_pulsa_tecla)
 #5 escopeta
 #6 minigun
 #7 granada
+
 pilas.ejecutar()

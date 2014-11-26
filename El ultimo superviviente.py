@@ -34,7 +34,7 @@ class Pasto (pilasengine.actores.Actor):
 class Soldado (pilasengine.actores.Actor):
 
     def iniciar(self):
-        self.imagen = pilas.imagenes.cargar_animacion("data/soldado/animacion.png", 5)
+        self.imagen = pilas.imagenes.cargar_animacion("data/soldado/animacion-escopeta.png", 6)
         self.y = -137
         self.x = -150
         self.escala=1.2
@@ -132,7 +132,7 @@ class Agachado(Estado):
 
     def iniciar(self):
         self.receptor.imagen=pilas.imagenes.cargar_grilla("data/soldado/agachado.png",1)
-        self.receptor.sombra.escala=[1.25],0.1
+        self.receptor.sombra.escala=[1.20],0.1
         self.receptor.y=-155
     def suelta_tecla(self, tecla):
         if tecla == 's':
@@ -195,8 +195,18 @@ class Saltar(Estado):
             self.receptor.y =-135
             self.receptor.saltando=False
             self.receptor.realizar(Parado)
-
-
+            
+class SoldadoMuriendo(pilasengine.actores.Actor):
+    def iniciar(self):
+        self.imagen="muerto.png"
+        self.espejado=True
+        self.contador=0
+        self.velocidad=10
+    def actualizar(self):
+        self.contador+=1
+        if self.contador >=60:
+            self.y+=self.velocidad
+            self.velocidad-=0.5
 class Zombie(pilasengine.actores.Actor):
     def iniciar(self):
         #self.imagen="zombies2.png"
@@ -217,6 +227,7 @@ class Zombie(pilasengine.actores.Actor):
             self.eliminar()
         if self.sombra.x < pilas.camara.x -400:
             self.sombra.eliminar()
+            
         
 class Fondo (pilasengine.actores.Actor):
     def iniciar(self):
@@ -251,7 +262,6 @@ class Bloque (pilasengine.actores.Actor):
 fondo=Fondo(pilas)
 pasto=Pasto(pilas)
 
-
 bloque1=Bloque(pilas)
 bloque2=Bloque(pilas)
 bloque3=Bloque(pilas)
@@ -265,15 +275,21 @@ soldado=Soldado(pilas)
 soldado.pasto=pasto
 soldado.fondo=fondo
 
+soldado_muriendo = None
 
 def cuando_colisionan(soldado, zombie):
-    zombie.sombra.eliminar()
-    zombie.eliminar()
-    
+    soldado_muriendo = SoldadoMuriendo(pilas)
+    soldado_muriendo.y=soldado.y
+    soldado_muriendo.x=soldado.x
+    soldado.sombra.eliminar()
+    soldado.eliminar()
+
+
+
 def crear_zombie():
     un_zombie=Zombie(pilas)
     pilas.colisiones.agregar(soldado,un_zombie,cuando_colisionan)
-pilas.escena.tareas.siempre(5,crear_zombie)
+pilas.escena.tareas.siempre(3,crear_zombie)
 
 
 
@@ -343,8 +359,8 @@ bloque_seleccionado=3
 
 
 actor=pilas.actores.Actor()
-actor.imagen="data/barra/escopeta.png"
-actor.escala=0.28
+actor.imagen="data/barra/motosierra.png"
+actor.escala=0.39
 actor.x=91
 actor.y=143
 actor.fijo=True
@@ -389,8 +405,8 @@ actor6.fijo=True
 
 
 actor7=pilas.actores.Actor()
-actor7.imagen="data/barra/motosierra.png"
-actor7.escala=0.45
+actor7.imagen="data/barra/escopeta.png"
+actor7.escala=0.34
 actor7.x=1
 actor7.y=150
 actor7.fijo=True

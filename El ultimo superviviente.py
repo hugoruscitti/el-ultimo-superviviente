@@ -76,7 +76,7 @@ class Soldado (pilasengine.actores.Actor):
         self.comportamiento_actual.pulsa_tecla(tecla)
         
     def reiniciar_animacion(self):
-        self.imagen = pilas.imagenes.cargar_animacion("data/soldado/animacion.png", 5)
+        self.imagen = pilas.imagenes.cargar_animacion("data/soldado/animacion-escopeta.png", 6)
         self.imagen.definir_animacion('corre', [0,1,2,3], 10)
         self.imagen.definir_animacion('parado', [0], 10)
         self.imagen.definir_animacion('saltando', [3], 10)   
@@ -227,7 +227,11 @@ class Zombie(pilasengine.actores.Actor):
             self.eliminar()
         if self.sombra.x < pilas.camara.x -400:
             self.sombra.eliminar()
-            
+    def matar (self):
+        self.sombra.eliminar()
+        self.eliminar()
+        
+        
         
 class Fondo (pilasengine.actores.Actor):
     def iniciar(self):
@@ -287,11 +291,13 @@ def cuando_colisionan(soldado, zombie):
 
 
 def crear_zombie():
+    global los_zombies
     un_zombie=Zombie(pilas)
+    los_zombies.append(un_zombie)
     pilas.colisiones.agregar(soldado,un_zombie,cuando_colisionan)
-pilas.escena.tareas.siempre(3,crear_zombie)
+pilas.escena.tareas.siempre(2,crear_zombie)
 
-
+los_zombies=[]
 
 dist=90
 bloque7.x=dist*3
@@ -426,11 +432,14 @@ lista.append(bloque4)
 lista.append(bloque5)
 lista.append(bloque6)
 lista.append(bloque7)
-
+sonido_disparo=pilas.sonidos.cargar("disparo.wav")
 def cuando_pulsa_tecla(e):
     global bloque_seleccionado
     global lista
-
+    global los_zombies
+    global sonido_disparo
+    
+    
     if e.codigo=="e":
         bloque_seleccionado+=1
         if bloque_seleccionado>6:
@@ -447,7 +456,17 @@ def cuando_pulsa_tecla(e):
         for x in lista:
             x.deshacer()
         lista[bloque_seleccionado].seleccionar()
-
+    if e.codigo=="k":
+        pilas.camara.y-=100
+    if e.codigo=="l":
+        pilas.camara.y+=100
+    if e.codigo==32 and los_zombies:
+        los_zombies[0].matar()
+        los_zombies.pop(0)
+        
+    if e.codigo==32:
+        sonido_disparo.reproducir()
+        
     soldado.estado_actual.pulsa_tecla(e.codigo)
 
 def cuando_suelta_tecla(e):

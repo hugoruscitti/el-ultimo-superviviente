@@ -9,6 +9,9 @@ import pilasengine
 pilas=pilasengine.iniciar(capturar_errores=False)
 
 
+saltando=False
+agachado=False
+
 class Pasto (pilasengine.actores.Actor):
     def iniciar(self):
         self.imagen="data/fondo/Floor.png"
@@ -131,6 +134,8 @@ class Parado(Estado):
 class Agachado(Estado):
 
     def iniciar(self):
+        global agachado
+        agachado=True
         self.receptor.imagen=pilas.imagenes.cargar_grilla("data/soldado/agachado.png",1)
         self.receptor.sombra.escala=[1.20],0.1
         self.receptor.y=-155
@@ -140,6 +145,8 @@ class Agachado(Estado):
             self.receptor.realizar(Parado)
             self.receptor.sombra.escala=[1],0.1
             self.receptor.y=-137
+            global agachado
+            agachado=False
 class CorreDerecha(Estado):
 
     def iniciar(self):
@@ -179,6 +186,8 @@ class Saltar(Estado):
 
         :param receptor: El actor que comenzará a ejecutar este comportamiento.
         """
+        global saltando
+        saltando=True
         self.velocidad_inicial = velocidad_inicial
         self.suelo = int(self.receptor.y)
         self.velocidad = self.velocidad_inicial
@@ -187,6 +196,7 @@ class Saltar(Estado):
         self.receptor.sombra.escala=[0.5,1],0.2
         
     def actualizar(self):
+        global saltando
         self.receptor.imagen.avanzar()
         self.receptor.y += self.velocidad
         self.velocidad -= 1
@@ -195,7 +205,7 @@ class Saltar(Estado):
             self.receptor.y =-135
             self.receptor.saltando=False
             self.receptor.realizar(Parado)
-            
+            saltando=False
 class SoldadoMuriendo(pilasengine.actores.Actor):
     def iniciar(self):
         self.imagen="muerto.png"
@@ -228,11 +238,18 @@ class Zombie(pilasengine.actores.Actor):
         if self.sombra.x < pilas.camara.x -400:
             self.sombra.eliminar()
     def matar (self):
+        cuerpo=Zombie_Muriendo(pilas)
+        cuerpo.x=self.x
+        cuerpo.y=self.y
         self.sombra.eliminar()
         self.eliminar()
         
         
-        
+class Zombie_Muriendo(pilasengine.actores.Actor):
+    def iniciar(self):
+        self.imagen="zombiemuriendo.png"
+    def actualizar(self):
+        self.y-=7
 class Fondo (pilasengine.actores.Actor):
     def iniciar(self):
         self.imagen="background01.png"
@@ -302,58 +319,34 @@ los_zombies=[]
 dist=90
 bloque7.x=dist*3
 bloque7.escala=0.5
-balas_7=pilas.actores.Texto()
-balas_7.texto="0"
-balas_7.escala=0.4
-balas_7.x=305
-balas_7.y=135
+
 
 bloque6.x=dist*2
 bloque6.escala=0.7
-balas_6=pilas.actores.Texto()
-balas_6.texto="0"
-balas_6.escala=0.6
-balas_6.x=230
-balas_6.y=130
+
 
 
 
 bloque5.x=dist*1
 bloque5.escala=0.84
-balas_5=pilas.actores.Texto()
-balas_5.texto="0"
-balas_5.escala=0.7
-balas_5.x=150
-balas_5.y=125
+
 
 
 bloque4.x=dist*0
 bloque4.seleccionar()
-balas_4=pilas.actores.Texto()
-balas_4.texto="0"
-balas_4.escala=0.9
-balas_4.x=70
-balas_4.y=123
+
 
 
 bloque3.x=dist*-1
 bloque3.escala=0.84
-balas_3=pilas.actores.Texto()
-balas_3.texto="0"
-balas_3.escala=0.7
-balas_3.x=-30
-balas_3.y=125
+
 
 
 bloque2.x=dist*-2
 bloque2.escala=0.7
 bloque6.x=dist*2
 bloque6.escala=0.7
-balas_6=pilas.actores.Texto()
-balas_6.texto="0"
-balas_6.escala=0.6
-balas_6.x=-130
-balas_6.y=130
+
 
 
 bloque1.x=dist*-3
@@ -433,13 +426,16 @@ lista.append(bloque5)
 lista.append(bloque6)
 lista.append(bloque7)
 sonido_disparo=pilas.sonidos.cargar("disparo.wav")
+sonido_AK=pilas.sonidos.cargar("AK-47.wav")
+sonido_knife=pilas.sonidos.cargar("knife.wav")
 def cuando_pulsa_tecla(e):
     global bloque_seleccionado
     global lista
     global los_zombies
     global sonido_disparo
-    
-    
+    global saltando
+    global agachado
+
     if e.codigo=="e":
         bloque_seleccionado+=1
         if bloque_seleccionado>6:
@@ -456,17 +452,24 @@ def cuando_pulsa_tecla(e):
         for x in lista:
             x.deshacer()
         lista[bloque_seleccionado].seleccionar()
-    if e.codigo=="k":
-        pilas.camara.y-=100
-    if e.codigo=="l":
-        pilas.camara.y+=100
-    if e.codigo==32 and los_zombies:
-        los_zombies[0].matar()
-        los_zombies.pop(0)
+
+    if e.codigo==32 and los_zombies and not saltando and not agachado :
+        if bloque_seleccionado == 0:
+            distancia = los_zombies[0].x - soldado.x
+            if distancia < 100:
+                los_zombies[0].matar()
+                los_zombies.pop(0)
+        else:
+            los_zombies[0].matar()
+            los_zombies.pop(0)
         
-    if e.codigo==32:
-        sonido_disparo.reproducir()
-        
+    if e.codigo==32 and not agachado:
+        if bloque_seleccionado==1:
+            sonido_disparo.reproducir()
+        if bloque_seleccionado==2:
+            sonido_AK.reproducir()
+        if bloque_seleccionado==0:
+            sonido_knife.reproducir()
     soldado.estado_actual.pulsa_tecla(e.codigo)
 
 def cuando_suelta_tecla(e):
